@@ -57,6 +57,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'web_app.context_processors.emailjs_keys',  # Si usás EmailJS desde .env
+
             ],
         },
     },
