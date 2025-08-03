@@ -119,14 +119,13 @@ def contactar_propiedad_view(request, pk):
 # VISTA: BUSQUEDA DE PROPIEDADES
 # ---------------------------
 def busqueda_propiedades_view(request):
-    # Capturar filtros desde la URL
+    # Filtros desde GET
     query = request.GET.get('q')
     tipo_propiedad = request.GET.get('tipo_propiedad')
     tipo_operacion = request.GET.get('tipo_operacion')
-    min_precio_usd = request.GET.get('min_precio_usd')
-    max_precio_usd = request.GET.get('max_precio_usd')
-    min_precio_pesos = request.GET.get('min_precio_pesos')
-    max_precio_pesos = request.GET.get('max_precio_pesos')
+    min_precio = request.GET.get('min_precio')
+    max_precio = request.GET.get('max_precio')
+    currency = request.GET.get('currency', 'ARS')  # Default a ARS
     localidad = request.GET.get('localidad')
     dormitorios = request.GET.get('dormitorios')
     banios = request.GET.get('banios')
@@ -145,7 +144,7 @@ def busqueda_propiedades_view(request):
             del temp_params[param_to_remove]
         return temp_params.urlencode()
 
-    # Aplicar todos los filtros y construir etiquetas visibles
+    # Filtros básicos
     if query:
         propiedades = propiedades.filter(
             Q(titulo__icontains=query) |
@@ -179,29 +178,44 @@ def busqueda_propiedades_view(request):
             'remove_url_params': generate_remove_url('tipo_operacion')
         })
 
-    # Rango de precios en USD y Pesos
-    for param, lookup, prefix, symbol in [
-        (min_precio_usd, 'precio_usd__gte', 'min_precio_usd', 'U$D'),
-        (max_precio_usd, 'precio_usd__lte', 'max_precio_usd', 'U$D'),
-        (min_precio_pesos, 'precio_pesos__gte', 'min_precio_pesos', '$'),
-        (max_precio_pesos, 'precio_pesos__lte', 'max_precio_pesos', '$')
-    ]:
-        if param:
-            try:
-                propiedades = propiedades.filter(**{lookup: float(param)})
-                active_filters_display.append({
-                    'param_name': prefix,
-                    'display_text': f"{symbol} {param}",
-                    'remove_url_params': generate_remove_url(prefix)
-                })
-            except ValueError:
-                pass
+    # Filtro de precios según moneda
+    try:
+        if min_precio:
+            val_min = float(min_precio)
+            if currency == 'USD':
+                propiedades = propiedades.filter(precio_usd__gte=val_min)
+            else:
+                propiedades = propiedades.filter(precio_pesos__gte=val_min)
 
-    # Filtros de atributos
+            active_filters_display.append({
+                'param_name': 'min_precio',
+                'display_text': f"Precio Desde: {currency} {min_precio}",
+                'remove_url_params': generate_remove_url('min_precio')
+            })
+    except ValueError:
+        pass
+
+    try:
+        if max_precio:
+            val_max = float(max_precio)
+            if currency == 'USD':
+                propiedades = propiedades.filter(precio_usd__lte=val_max)
+            else:
+                propiedades = propiedades.filter(precio_pesos__lte=val_max)
+
+            active_filters_display.append({
+                'param_name': 'max_precio',
+                'display_text': f"Precio Hasta: {currency} {max_precio}",
+                'remove_url_params': generate_remove_url('max_precio')
+            })
+    except ValueError:
+        pass
+
+    # Otros filtros de atributos numéricos
     for campo, nombre, label in [
         (localidad, 'localidad', 'Localidad'),
         (dormitorios, 'dormitorios', 'Ambientes'),
-        (banios, 'banios', 'Ba\u00f1os'),
+        (banios, 'banios', 'Baños'),
         (cocheras, 'cocheras', 'Cocheras')
     ]:
         if campo and campo.isdigit():
@@ -240,16 +254,15 @@ def busqueda_propiedades_view(request):
 
     context = {
         'propiedades': propiedades,
-        'page_title': 'Resultados de B\u00fasqueda',
+        'page_title': 'Resultados de Búsqueda',
         'tipo_propiedad_choices': Propiedad.TIPO_CHOICES,
         'tipo_operacion_choices': Propiedad.TIPO_OPERACION_CHOICES,
         'tipo_mascota_choices': Propiedad.TIPO_MASCOTA_CHOICES,
         'selected_tipo_propiedad': tipo_propiedad,
         'selected_tipo_operacion': tipo_operacion,
-        'selected_min_precio_usd': min_precio_usd,
-        'selected_max_precio_usd': max_precio_usd,
-        'selected_min_precio_pesos': min_precio_pesos,
-        'selected_max_precio_pesos': max_precio_pesos,
+        'selected_min_precio': min_precio,
+        'selected_max_precio': max_precio,
+        'selected_currency': currency,
         'selected_localidad': localidad,
         'selected_dormitorios': dormitorios,
         'selected_banios': banios,
@@ -261,6 +274,3 @@ def busqueda_propiedades_view(request):
         'request': request,
     }
     return render(request, 'web_app/busqueda.html', context)
-
-
-

@@ -38,72 +38,74 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
-        <div>
+      <div class="grid grid-cols-12 gap-4 mb-4 items-center">
+        <div class="col-span-2">
           <label for="id_min_precio" class="block text-sm font-semibold mb-1">Precio Desde</label>
           <input type="number" step="0.01" id="id_min_precio" name="min_precio" value="{{ selected_min_precio|default_if_none:'' }}"
             class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <div>
+
+        <div class="col-span-2">
           <label for="id_max_precio" class="block text-sm font-semibold mb-1">Precio Hasta</label>
           <input type="number" step="0.01" id="id_max_precio" name="max_precio" value="{{ selected_max_precio|default_if_none:'' }}"
             class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <div class="col-span-2 md:col-span-2 flex items-end gap-2">
-            <button type="button" id="btn-currency-usd" class="currency-button py-2 px-4 rounded transition duration-200
-                {% if selected_currency == 'USD' %}
-                    bg-yellow-400 text-black border border-black
-                {% else %}
-                    bg-gray-200 text-gray-700 border border-gray-300
-                {% endif %}">
-                <i class="fa fa-dollar-sign mr-1"></i> USD
-            </button>
-            <input type="hidden" name="currency" id="hidden_currency" value="{{ selected_currency|default_if_none:'ARS' }}">
+
+        <div class="col-span-1 flex justify-center">
+          <button type="button" id="btn-currency-usd" class="currency-button py-2 px-4 rounded transition duration-200
+            {% if selected_currency == 'USD' %}
+              bg-yellow-400 text-black border border-black
+            {% else %}
+              bg-gray-200 text-gray-700 border border-gray-300
+            {% endif %}">
+            USD
+          </button>
+          <input type="hidden" name="currency" id="hidden_currency" value="{{ selected_currency|default_if_none:'ARS' }}">
         </div>
-        <div>
+
+        <div class="col-span-1">
           <label for="id_dormitorios" class="block text-sm font-semibold mb-1">Ambientes</label>
           <input type="number" id="id_dormitorios" name="dormitorios" value="{{ selected_dormitorios|default_if_none:'' }}"
             class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <div>
+
+        <div class="col-span-1">
           <label for="id_banios" class="block text-sm font-semibold mb-1">Baños</label>
           <input type="number" id="id_banios" name="banios" value="{{ selected_banios|default_if_none:'' }}"
             class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500" />
         </div>
-      </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-        <div>
+        <div class="col-span-1">
           <label for="id_cocheras" class="block text-sm font-semibold mb-1">Cocheras</label>
           <input type="number" id="id_cocheras" name="cocheras" value="{{ selected_cocheras|default_if_none:'' }}"
             class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <div class="flex items-center mt-6">
-          <label class="flex items-center space-x-2 cursor-pointer text-base">
+
+        <div class="col-span-3 flex items-center space-x-8">
+          <label class="flex items-center cursor-pointer text-base">
             <input type="checkbox" id="id_is_destacada" name="is_destacada" {% if selected_is_destacada %}checked{% endif %}
               class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
-            <span class="text-sm text-gray-700">Solo destacadas</span>
+            <span class="ml-2 text-sm text-gray-700">Solo destacadas</span>
           </label>
-        </div>
-        <div class="flex items-center mt-6">
-          <label class="flex items-center space-x-2 cursor-pointer text-base">
+          <label class="flex items-center cursor-pointer text-base">
             <input type="checkbox" id="id_acepta_mascotas" name="acepta_mascotas" {% if selected_acepta_mascotas %}checked{% endif %}
               class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
-            <span class="text-sm text-gray-700">Acepta mascotas</span>
+            <span class="ml-2 text-sm text-gray-700">Acepta mascotas</span>
           </label>
         </div>
-        {% if selected_acepta_mascotas %}
-        <div>
-          <label for="id_tipo_mascota_permitida" class="block text-sm font-semibold mb-1">Tipo de Mascota</label>
-          <select id="id_tipo_mascota_permitida" name="tipo_mascota_permitida" class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500">
-            <option value="no_especificado">No especificado</option>
-            {% for value, label in tipo_mascota_choices %}
-              <option value="{{ value }}" {% if value == selected_tipo_mascota_permitida %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        {% endif %}
       </div>
+
+      {% if selected_acepta_mascotas %}
+      <div class="mb-4">
+        <label for="id_tipo_mascota_permitida" class="block text-sm font-semibold mb-1">Tipo de Mascota</label>
+        <select id="id_tipo_mascota_permitida" name="tipo_mascota_permitida" class="w-full border border-gray-300 rounded px-3 py-2 text-base focus:ring-blue-500 focus:border-blue-500">
+          <option value="no_especificado">No especificado</option>
+          {% for value, label in tipo_mascota_choices %}
+            <option value="{{ value }}" {% if value == selected_tipo_mascota_permitida %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
 
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex gap-4 w-full md:w-auto mt-4 md:mt-0 justify-center">
@@ -173,8 +175,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         const usdButton = document.getElementById('btn-currency-usd');
         const hiddenCurrencyInput = document.getElementById('hidden_currency');
+        const searchForm = document.getElementById('search-form');
 
-        // Initial state update on page load
         function updateButtonState() {
             if (hiddenCurrencyInput.value === 'USD') {
                 usdButton.classList.remove('bg-gray-200', 'text-gray-700', 'border-gray-300');
@@ -187,16 +189,21 @@
 
         usdButton.addEventListener('click', function() {
             if (hiddenCurrencyInput.value === 'USD') {
-                // If USD is currently selected, deselect it (switch to ARS)
                 hiddenCurrencyInput.value = 'ARS';
             } else {
-                // If USD is not selected, select it
                 hiddenCurrencyInput.value = 'USD';
             }
-            updateButtonState(); // Update button visual state
+            updateButtonState();
         });
 
-        // Call once on load to set initial state correctly
+        // Permitir enviar formulario al presionar Enter en cualquier input
+        searchForm.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // prevenir comportamiento por defecto (para evitar dobles submits)
+                searchForm.submit();
+            }
+        });
+
         updateButtonState();
     });
 </script>
