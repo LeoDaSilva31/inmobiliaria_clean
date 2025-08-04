@@ -1,107 +1,77 @@
-# admin.py organizado y comentado
-
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Propiedad, PropiedadImagen
 
-# --- Personalización del sitio admin ---
-admin.site.site_header = "Administración"
+from django.contrib.auth.models import Group, User
 
-# --- Imagenes Inline para la Propiedad ---
+try:
+    admin.site.unregister(Group)
+    #admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
+
+# --- Personalización del panel ---
+admin.site.site_header = "Administración"
+admin.site.site_title = "Administración"
+admin.site.index_title = "Administración"
+
+# --- Inline para imágenes ---
 class PropiedadImagenInline(admin.TabularInline):
     model = PropiedadImagen
     extra = 1
-    fields = ('imagen', 'descripcion_corta')
+    fields = ('imagen',)
 
-
-# --- Configuración del modelo Propiedad en el admin ---
+# --- Administración para Propiedad ---
 @admin.register(Propiedad)
 class PropiedadAdmin(admin.ModelAdmin):
-    # Campos visibles en la lista
     list_display = (
         'titulo', 'localidad', 'tipo_operacion', 'precio_usd', 'precio_pesos',
         'is_destacada', 'acepta_mascotas', 'estado_publicacion', 'fecha_actualizacion'
     )
     list_display_links = ('titulo',)
-
-    # Filtros laterales
     list_filter = (
-        'tipo', 'tipo_operacion', 'localidad', 'is_destacada', 'acepta_mascotas',
-        'estado_publicacion', 'fecha_creacion', 'fecha_actualizacion', 'tipo_mascota_permitida'
+        'tipo', 'tipo_operacion', 'localidad', 'is_destacada',
+        'acepta_mascotas', 'estado_publicacion'
     )
-
-    # Campos buscables
     search_fields = (
-        'titulo', 'descripcion', 'direccion', 'localidad', 'provincia', 'amenidades'
+        'titulo', 'descripcion', 'direccion', 'localidad', 'provincia'
     )
-
-    # Orden y paginación
+    readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
     list_per_page = 25
     ordering = ('-fecha_creacion',)
+    inlines = [PropiedadImagenInline]
 
-    # Campos de solo lectura
-    readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
-
-    # Agrupación de campos por secciones
     fieldsets = (
         ('Información Básica', {
-            'fields': ('titulo', 'descripcion', 'tipo', 'tipo_operacion'),
-            'description': 'Información fundamental de la propiedad.'
-        }),
-        ('Detalles de Precio', {
-            'fields': ('precio_usd', 'precio_pesos'),
-            'description': 'Define los precios de venta o alquiler. Al menos uno debe ser completado.'
+            'fields': ('titulo', 'descripcion', 'tipo', 'tipo_operacion')
         }),
         ('Ubicación', {
-            'fields': ('direccion', 'localidad', 'provincia', 'pais'),
-            'description': 'Ubicación física de la propiedad.'
+            'fields': ('direccion', 'localidad', 'provincia')
+        }),
+        ('Precio', {
+            'fields': ('precio_usd', 'precio_pesos')
         }),
         ('Características', {
-            'fields': ('metros_cuadrados_total', 'metros_cuadrados_cubierta', 'dormitorios', 'banios', 'cocheras', 'antiguedad', 'amenidades'),
-            'description': 'Especificaciones y comodidades de la propiedad.'
+            'fields': ('superficie_total', 'dormitorios', 'banios', 'cocheras')
         }),
         ('Mascotas', {
-            'fields': ('acepta_mascotas', 'tipo_mascota_permitida'),
-            'description': 'Configuración de si la propiedad es amigable con mascotas y sus restricciones.'
+            'fields': ('acepta_mascotas', 'tipo_mascota_permitida')
         }),
-        ('Gestión y Publicación', {
+        ('Publicación', {
             'fields': ('imagen_principal', 'is_destacada', 'estado_publicacion', 'fecha_creacion', 'fecha_actualizacion'),
-            'description': 'Control de la visibilidad y estado de la propiedad.',
-            'classes': ('collapse',),
+            'classes': ('collapse',)
         }),
     )
 
-    # Inlines
-    inlines = [PropiedadImagenInline]
+    actions = ['publicar_propiedades', 'archivar_propiedades']
 
-    # Acciones personalizadas
-    actions = ['make_destacada', 'make_not_destacada', 'publish_property', 'archive_property']
-
-    def make_destacada(self, request, queryset):
-        updated = queryset.update(is_destacada=True)
-        self.message_user(request, f'{updated} propiedades marcadas como destacadas.', level='success')
-    make_destacada.short_description = "Marcar propiedades seleccionadas como destacadas"
-
-    def make_not_destacada(self, request, queryset):
-        updated = queryset.update(is_destacada=False)
-        self.message_user(request, f'{updated} propiedades desmarcadas como destacadas.', level='warning')
-    make_not_destacada.short_description = "Desmarcar propiedades seleccionadas como destacadas"
-
-    def publish_property(self, request, queryset):
+    def publicar_propiedades(self, request, queryset):
         updated = queryset.update(estado_publicacion='publicada')
-        self.message_user(request, f'{updated} propiedades publicadas.', level='success')
-    publish_property.short_description = "Publicar propiedades seleccionadas"
+        self.message_user(request, f"{updated} propiedades publicadas.")
+    publicar_propiedades.short_description = "Publicar propiedades seleccionadas"
 
-    def archive_property(self, request, queryset):
-        updated = queryset.update(estado_status='archivada')  # Asegurarse que 'estado_status' existe
-        self.message_user(request, f'{updated} propiedades archivadas.', level='warning')
-    archive_property.short_description = "Archivar propiedades seleccionadas"
-
-
-# --- Desregistrar modelos innecesarios del admin ---
-try:
-    from django.contrib.auth.models import Group, User
-    admin.site.unregister(Group)
-    admin.site.unregister(User)
-except admin.sites.NotRegistered:
-    pass
+    def archivar_propiedades(self, request, queryset):
+        updated = queryset.update(estado_publicacion='borrador')
+        self.message_user(request, f"{updated} propiedades marcadas como borrador.")
+    archivar_propiedades.short_description = "Archivar propiedades seleccionadas"

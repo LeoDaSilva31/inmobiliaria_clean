@@ -49,4 +49,4 @@ def crear_propiedades(cantidad=20):
         print(f"Propiedad creada: {propiedad.titulo}")
 
 if __name__ == "__main__":
-    crear_propiedades(30)
+    crear_propiedades(100)

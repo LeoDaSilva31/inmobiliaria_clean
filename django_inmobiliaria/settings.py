@@ -27,7 +27,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',  # Para formatear números en templates
+    'storages',
     'web_app',  # Tu aplicación principal
+
 ]
 
 # Middleware para procesamiento de solicitudes/respuestas
@@ -66,13 +68,35 @@ TEMPLATES = [
 # Configuración WSGI para servidores web
 WSGI_APPLICATION = 'django_inmobiliaria.wsgi.application'
 
-# Configuración de base de datos (SQLite por defecto)
+# Base de datos PostgreSQL en RDS
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('RDS_DB_NAME'),
+        'USER': env('RDS_USER'),
+        'PASSWORD': env('RDS_PASSWORD'),
+        'HOST': env('RDS_HOST'),
+        'PORT': env('RDS_PORT'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
 }
+
+
+# Configuración para usar AWS S3 con django-storages
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-2')
+
+AWS_QUERYSTRING_AUTH = False  # Para usar URLs públicas firmadas, o True si querés contro
+
+# URLs para archivos media
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+
 
 # Validadores de contraseñas para mayor seguridad
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,7 +126,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Archivos multimedia (imágenes subidas por el usuario)
-MEDIA_URL = '/media/'
+
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Tipo de campo automático por defecto para modelos
