@@ -2,46 +2,52 @@
 {% load custom_filters %}
 {% load static %}
 
-{% block title %}Propiedades - TU INMOBILIARIA{% endblock %}
+{% block title %}
+    {{ block.super }} - {{ page_title }}
+{% endblock %}
 
 {% block content %}
-<section class="container mx-auto px-4 pt-6 pb-10">
-    <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Propiedades</h1>
+    <h1 class="text-center text-gray-800 text-3xl font-bold mb-6">Nuestras Propiedades</h1>
 
     {% if propiedades %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 p-4"> {# Agregado md:grid-cols-3, xl:grid-cols-5, y p-4 para padding general #}
         {% for propiedad in propiedades %}
-        <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'100' }}">
+        <div class="col">
             <a href="{% url 'web_app:propiedad_detail' propiedad.pk %}"
                class="block h-full shadow-md rounded-lg overflow-hidden transition-all duration-200 ease-in-out
                       hover:scale-105 hover:shadow-xl hover:border-yellow-600 border border-gray-200">
-                <div class="relative">
-                    {% if propiedad.imagen_principal %}
-                        <img src="{{ propiedad.imagen_principal.url }}" class="w-full h-40 object-cover" alt="{{ propiedad.titulo }}">
-                    {% else %}
-                        <img src="{% static 'img/placeholder.png' %}" class="w-full h-40 object-cover bg-gray-200" alt="Sin imagen">
-                    {% endif %}
-                </div>
-                <div class="p-4 flex flex-col h-full bg-gray-50 rounded-b-lg">
-                    <h3 class="text-base font-semibold mb-2 text-gray-900">{{ propiedad.titulo }}</h3>
-                    <p class="text-xs text-gray-600 mb-2">{{ propiedad.direccion }}, {{ propiedad.localidad }}</p>
-                    <div class="flex items-center mb-2">
-                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full mr-2">{{ propiedad.get_tipo_display }}</span>
-                        <span class="bg-yellow-400 text-gray-900 text-xs px-2 py-1 rounded-full">{{ propiedad.get_tipo_operacion_display }}</span>
+
+                {% if propiedad.imagen_principal %}
+                    <img src="{{ propiedad.imagen_principal.url }}" class="w-full h-32 object-cover" alt="{{ propiedad.titulo }}"> {# Altura de imagen reducida a h-32 #}
+                {% else %}
+                    <img src="{% static 'img/placeholder.png' %}" class="w-full h-32 object-cover bg-gray-200" alt="Sin imagen"> {# Altura de imagen reducida a h-32 #}
+                {% endif %}
+
+                <div class="p-2 flex flex-col h-full bg-gray-50 rounded-b-lg"> {# Padding reducido a p-2 #}
+                    <h3 class="text-sm font-semibold mb-1 text-gray-900 truncate" title="{{ propiedad.titulo }}">{{ propiedad.titulo }}</h3> {# Título más pequeño y truncado, añadido title para tooltip #}
+                    <p class="text-xs text-gray-600 mb-1 truncate" title="{{ propiedad.direccion }}, {{ propiedad.localidad }}">{{ propiedad.direccion }}, {{ propiedad.localidad }}</p> {# Dirección más pequeña y truncada, añadido title #}
+
+                    <div class="flex flex-wrap items-center mb-1 -mx-0.5"> {# Ajuste de margen negativo y flex-wrap #}
+                        <span class="bg-gray-200 text-gray-800 text-xs px-1 py-0.5 rounded-full mx-0.5 my-0.5">{{ propiedad.get_tipo_display }}</span> {# Padding y margen más ajustados #}
+                        <span class="bg-yellow-400 text-gray-900 text-xs px-1 py-0.5 rounded-full mx-0.5 my-0.5">{{ propiedad.get_tipo_operacion_display }}</span> {# Padding y margen más ajustados #}
                     </div>
-                    <p class="text-lg font-bold mb-2">
+
+                    <p class="text-base font-bold text-blue-600 mb-1"> {# Precio más compacto #}
                         {% if propiedad.precio_usd %}
                             <span class="text-green-600">${{ propiedad.precio_usd|formato_miles }} USD</span>
                         {% endif %}
-                        {% if propiedad.precio_pesos and propiedad.precio_usd %} <span class="text-gray-500"> / </span> {% endif %}
+                        {% if propiedad.precio_pesos and propiedad.precio_usd %}
+                            <span class="text-gray-500 text-sm"> / </span> {# Tamaño de " / " reducido #}
+                        {% endif %}
                         {% if propiedad.precio_pesos %}
                             <span class="text-blue-600">${{ propiedad.precio_pesos|formato_miles }} ARS</span>
                         {% endif %}
                     </p>
-                    <div class="flex justify-between text-gray-500 text-xs mt-auto">
-                        <span><i class="fas fa-bed mr-1"></i> {{ propiedad.dormitorios|default:"-" }} Dorm.</span>
-                        <span><i class="fas fa-bath mr-1"></i> {{ propiedad.banios|default:"-" }} Baños</span>
-                        <span><i class="fas fa-car mr-1"></i> {{ propiedad.cocheras|default:"-" }} Coch.</span>
+
+                    <div class="flex justify-between text-gray-500 text-xs mt-auto"> {# Íconos y texto de características más pequeños #}
+                        <span><i class="fas fa-bed mr-0.5"></i> {{ propiedad.dormitorios|default:"-" }}</span>
+                        <span><i class="fas fa-bath mr-0.5"></i> {{ propiedad.banios|default:"-" }}</span>
+                        <span><i class="fas fa-car mr-0.5"></i> {{ propiedad.cocheras|default:"-" }}</span>
                     </div>
                 </div>
             </a>
@@ -49,7 +55,19 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="text-center text-gray-500">No hay propiedades disponibles por el momento.</p>
+    <div class="text-center text-gray-500 py-12">
+        <p class="text-2xl mb-3">Lo sentimos, no hay propiedades disponibles en este momento.</p>
+        <p>Por favor, revisa más tarde o contáctanos para ayudarte a encontrar lo que buscas.</p>
+    </div>
     {% endif %}
-</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Puedes añadir estilos personalizados aquí si los ajustes de Tailwind no son suficientes */
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/your-fontawesome-kit-id.js" crossorigin="anonymous"></script>
 {% endblock %}

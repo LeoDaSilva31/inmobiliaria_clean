@@ -9,3 +9,8 @@ def formato_miles(valor):
         return "{:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
     except (ValueError, TypeError):
         return valor
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

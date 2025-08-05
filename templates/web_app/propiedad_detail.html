@@ -37,7 +37,7 @@
                          onclick="changeMainImage('{{ propiedad.imagen_principal.url }}', this)">
                 </div>
                 {% endif %}
-                {% for imagen in propiedad.imagenes.all %}
+                {% for imagen in propiedad.galeria.all %}
                     <div>
                         <img src="{{ imagen.imagen.url }}"
                              alt="{{ imagen.descripcion_corta|default:propiedad.titulo }}"

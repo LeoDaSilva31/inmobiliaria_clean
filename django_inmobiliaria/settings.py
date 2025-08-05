@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',  # Para formatear números en templates
     'storages',
     'web_app',  # Tu aplicación principal
-
 ]
 
 # Middleware para procesamiento de solicitudes/respuestas
@@ -59,7 +58,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'web_app.context_processors.emailjs_keys',  # Si usás EmailJS desde .env
-
             ],
         },
     },
@@ -84,18 +82,22 @@ DATABASES = {
 }
 
 
-# Configuración para usar AWS S3 con django-storages
+# --- Configuración para usar AWS S3 con django-storages ---
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-2')
+AWS_DEFAULT_ACL = None
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_VERIFY = True
 
-AWS_QUERYSTRING_AUTH = False  # Para usar URLs públicas firmadas, o True si querés contro
+# Esta es la línea clave para evitar fallos silenciosos
+AWS_S3_ENDPOINT_URL = f'https://s3.{AWS_S3_REGION_NAME}.amazonaws.com' 
 
 # URLs para archivos media
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
 
 # Validadores de contraseñas para mayor seguridad
@@ -124,10 +126,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Archivos multimedia (imágenes subidas por el usuario)
-
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # Tipo de campo automático por defecto para modelos
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -136,3 +138,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAILJS_PUBLIC_KEY = env("EMAILJS_PUBLIC_KEY")
 EMAILJS_SERVICE_ID = env("EMAILJS_SERVICE_ID")
 EMAILJS_TEMPLATE_ID = env("EMAILJS_TEMPLATE_ID")
+
+

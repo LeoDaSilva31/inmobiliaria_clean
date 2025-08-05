@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Propiedad, PropiedadImagen
+from .models import Propiedad, PropiedadImagen  # <-- Importa el modelo correcto
 
 from django.contrib.auth.models import Group, User
 
@@ -9,7 +9,6 @@ try:
     #admin.site.unregister(User)
 except admin.sites.NotRegistered:
     pass
-
 
 # --- Personalización del panel ---
 admin.site.site_header = "Administración"
@@ -40,7 +39,7 @@ class PropiedadAdmin(admin.ModelAdmin):
     readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
     list_per_page = 25
     ordering = ('-fecha_creacion',)
-    inlines = [PropiedadImagenInline]
+    inlines = [PropiedadImagenInline] # <-- Inline para PropiedadImagen
 
     fieldsets = (
         ('Información Básica', {

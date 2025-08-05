@@ -4,8 +4,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.db.models import Q
 
-from web_app.models import Propiedad, Consulta
+from web_app.models import Propiedad
 from .forms import ConsultaForm
+
+
+
+def detalle_propiedad(request, pk):
+    propiedad = get_object_or_404(Propiedad, pk=pk)
+    url_imagen = propiedad.url_imagen_principal_firmada(expiracion=300)  # URL válida 5 min
+    return render(request, 'detalle_propiedad.html', {'propiedad': propiedad, 'url_imagen': url_imagen})
+
 
 # --------------------
 # VISTA: HOME (Inicio)
@@ -14,12 +22,19 @@ def home_view(request):
     propiedades_destacadas = Propiedad.objects.filter(
         is_destacada=True,
         estado_publicacion='publicada'
-    )[:6]
+    )
+    # Diccionario con pk -> url firmada
+    urls_firmadas = {
+        p.pk: p.url_imagen_principal_firmada(expiracion=300)
+        for p in propiedades_destacadas
+    }
     context = {
         'propiedades_destacadas': propiedades_destacadas,
+        'urls_firmadas': urls_firmadas,
         'page_title': 'Inmobiliaria - Inicio',
     }
     return render(request, 'web_app/home.html', context)
+
 
 
 # ----------------------------------
