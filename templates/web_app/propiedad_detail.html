@@ -261,10 +261,10 @@
     function openLightbox(startIndex) {
         imageUrls = [];
         {% if propiedad.imagen_principal %}
-            imageUrls.push("{{ propiedad.imagen_principal.url }}");
+            imageUrls.push("{{ propiedad.imagen_principal.url|escapejs }}");
         {% endif %}
         {% for imagen in propiedad.galeria.all %}
-            imageUrls.push("{{ imagen.imagen.url }}");
+            imageUrls.push("{{ imagen.imagen.url|escapejs }}");
         {% endfor %}
 
         const carouselInner = document.getElementById('carouselInner');
@@ -287,6 +287,7 @@
         updateCarousel();
         document.getElementById('imageLightbox').classList.remove('hidden');
     }
+
 
     function updateCarousel() {
         const carouselInner = document.getElementById('carouselInner');
