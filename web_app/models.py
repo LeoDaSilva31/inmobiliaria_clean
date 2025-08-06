@@ -57,10 +57,28 @@ class Propiedad(models.Model):
 
     # Características
     superficie_total = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    superficie_cubierta = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     dormitorios = models.IntegerField(null=True, blank=True)
     banios = models.IntegerField(null=True, blank=True)
     cocheras = models.IntegerField(null=True, blank=True)
 
+    #Selecion de mascotas
+    TIPO_MASCOTA_CHOICES = [
+        ('perros', 'Perros'),
+        ('gatos', 'Gatos'),
+        ('ambos', 'Perros y Gatos'),
+        ('no_especificado', 'No especificado'),
+    ]
+
+    tipo_mascota_permitida = models.CharField(
+        max_length=20,
+        choices=TIPO_MASCOTA_CHOICES,
+        default='no_especificado',
+        blank=True,
+        null=True
+    )
+
+    
     # Imagen principal y publicación
     imagen_principal = models.ImageField(
         upload_to='propiedades/',

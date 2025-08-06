@@ -263,7 +263,7 @@
         {% if propiedad.imagen_principal %}
             imageUrls.push("{{ propiedad.imagen_principal.url }}");
         {% endif %}
-        {% for imagen in propiedad.imagenes.all %}
+        {% for imagen in propiedad.galeria.all %}
             imageUrls.push("{{ imagen.imagen.url }}");
         {% endfor %}
 

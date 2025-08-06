@@ -1,12 +1,10 @@
 from django.contrib import admin
-from django.utils.html import format_html
-from .models import Propiedad, PropiedadImagen  # <-- Importa el modelo correcto
+from .models import Propiedad, PropiedadImagen
+from django.contrib.auth.models import Group
 
-from django.contrib.auth.models import Group, User
-
+# --- Eliminar el modelo Group del panel de administración ---
 try:
     admin.site.unregister(Group)
-    #admin.site.unregister(User)
 except admin.sites.NotRegistered:
     pass
 
@@ -39,7 +37,7 @@ class PropiedadAdmin(admin.ModelAdmin):
     readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
     list_per_page = 25
     ordering = ('-fecha_creacion',)
-    inlines = [PropiedadImagenInline] # <-- Inline para PropiedadImagen
+    inlines = [PropiedadImagenInline]
 
     fieldsets = (
         ('Información Básica', {
@@ -52,13 +50,19 @@ class PropiedadAdmin(admin.ModelAdmin):
             'fields': ('precio_usd', 'precio_pesos')
         }),
         ('Características', {
-            'fields': ('superficie_total', 'dormitorios', 'banios', 'cocheras')
+            'fields': (
+                'superficie_total', 'superficie_cubierta',
+                'dormitorios', 'banios', 'cocheras'
+            )
         }),
         ('Mascotas', {
             'fields': ('acepta_mascotas', 'tipo_mascota_permitida')
         }),
         ('Publicación', {
-            'fields': ('imagen_principal', 'is_destacada', 'estado_publicacion', 'fecha_creacion', 'fecha_actualizacion'),
+            'fields': (
+                'imagen_principal', 'is_destacada',
+                'estado_publicacion', 'fecha_creacion', 'fecha_actualizacion'
+            ),
             'classes': ('collapse',)
         }),
     )

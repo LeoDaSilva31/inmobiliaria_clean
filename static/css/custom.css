@@ -1,0 +1,9 @@
+/* django_inmobiliaria/static/css/custom.css */
+
+/* Puedes añadir tus estilos CSS personalizados aquí */
+/* Ejemplo de hover para galería de imágenes en detalle de propiedad */
+.hover-opacity-75:hover {
+    opacity: 0.75;
+    transition: opacity 0.3s ease-in-out;
+}
+
